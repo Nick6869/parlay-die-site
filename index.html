@@ -28,6 +28,8 @@
       <nav id="site-nav" class="site-nav" aria-label="Main navigation">
         <a aria-current="page" href="index.html">Home</a>
         <a href="services.html">Services</a>
+        <a href="team.html">Meet the Team</a>
+        <a href="blog.html">Blogs</a>
         <a href="merch.html">Merch</a>
         <a href="contact.html">Contact</a>
         <a class="social-link" href="https://linktr.ee/ParlayorDie">Links</a>
@@ -146,23 +148,23 @@
         </div>
       </section>
 
-      <section class="section facebook-video-feature" aria-label="Featured Facebook video">
+      <section class="section facebook-video-feature" aria-label="Featured YouTube video">
         <div class="facebook-video-copy">
-          <p class="eyebrow">Featured Facebook video</p>
+          <p class="eyebrow">Featured YouTube video</p>
           <h2>Watch the latest social drop.</h2>
           <p>
-            This featured clip is embedded from Facebook, so it stays lightweight on the site while still giving the
+            This featured clip is embedded from YouTube, so it stays lightweight on the site while still giving the
             homepage a playable video slot.
           </p>
-          <a class="button ghost" href="https://www.facebook.com/share/v/1B6V5cJdZS/">Open on Facebook</a>
+          <a class="button ghost" href="https://youtu.be/boLh-3PqDXk?si=eiu715kdID-S1Vu_">Open on YouTube</a>
         </div>
         <div class="facebook-video-embed">
           <iframe
-            title="Featured Parlay or Die Facebook video"
-            src="https://www.facebook.com/plugins/video.php?height=314&amp;href=https%3A%2F%2Fwww.facebook.com%2Fshare%2Fv%2F1B6V5cJdZS%2F&amp;show_text=false&amp;width=560&amp;t=0"
+            title="Featured Parlay or Die YouTube video"
+            src="https://www.youtube.com/embed/boLh-3PqDXk"
             width="560"
             height="314"
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen
             loading="lazy"
           ></iframe>
@@ -206,6 +208,25 @@
           <video controls preload="metadata" playsinline>
             <source src="assets/pump-sauce-sponsor.mp4" type="video/mp4" />
           </video>
+        </div>
+      </section>
+
+      <section class="section blog-feature" aria-label="Latest blog post">
+        <div class="blog-feature-copy">
+          <p class="eyebrow">Latest blog</p>
+          <h2>Read the newest post.</h2>
+          <p>
+            The latest WordPress post can appear here automatically once the public blog feed is connected.
+          </p>
+          <a class="button ghost" href="blog.html">View Blogs</a>
+        </div>
+        <div class="blog-list featured-blog-list" data-wp-posts="latest">
+          <article class="blog-card placeholder-card">
+            <span>WordPress</span>
+            <h3>Blog feed ready to connect</h3>
+            <p>Add the WordPress site URL in the blog feed config and the newest post will load here.</p>
+            <a href="blog.html">Open Blogs</a>
+          </article>
         </div>
       </section>
 
