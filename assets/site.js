@@ -1,6 +1,15 @@
 const navToggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".site-nav");
 const wordpressBlogUrl = "https://parlayordie.wordpress.com";
+const wordpressApiUrl =
+  "https://public-api.wordpress.com/rest/v1.1/sites/parlayordie.wordpress.com/posts/?number=12&fields=ID,title,URL,date,excerpt,status";
+const starterBlogPost = {
+  date: "2026-06-25T00:00:00-04:00",
+  title: "Welcome to the Parlay or Die Blog",
+  link: wordpressBlogUrl,
+  excerpt:
+    "The blog is where Parlay or Die can stretch out beyond the clips: sports notes, betting angles, show updates, local stories, and whatever game-day chaos deserves more than a caption.",
+};
 
 document.querySelectorAll('a[href^="http"]').forEach((link) => {
   link.target = "_blank";
@@ -87,6 +96,14 @@ const stripHtml = (html) => {
   return parser.parseFromString(html || "", "text/html").body.textContent || "";
 };
 
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
 const formatDate = (dateValue) => {
   if (!dateValue) return "Latest post";
   return new Intl.DateTimeFormat("en", {
@@ -97,36 +114,62 @@ const formatDate = (dateValue) => {
 };
 
 const renderBlogPost = (post) => {
-  const title = decodeHtml(post.title?.rendered || "Untitled post");
-  const excerpt = stripHtml(post.excerpt?.rendered || "").trim();
-  const link = post.link || "#";
+  const title = decodeHtml(post.title?.rendered || post.title || "Untitled post");
+  const excerpt = stripHtml(post.excerpt?.rendered || post.excerpt || "").trim();
+  const link = post.link || post.URL || "#";
   const date = formatDate(post.date);
 
   return `
     <article class="blog-card">
-      <span>${date}</span>
-      <h3>${title}</h3>
-      <p>${excerpt || "Open the full post on WordPress for the latest from Parlay or Die."}</p>
-      <a href="${link}">Read post</a>
+      <span>${escapeHtml(date)}</span>
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(excerpt || "Open the full post on WordPress for the latest from Parlay or Die.")}</p>
+      <a href="${escapeHtml(link)}">Read post</a>
     </article>
   `;
 };
+
+const loadWordPressData = () =>
+  new Promise((resolve, reject) => {
+    const callbackName = `parlayWordPressPosts_${Date.now()}`;
+    const script = document.createElement("script");
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("WordPress posts unavailable"));
+    }, 7000);
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      delete window[callbackName];
+      script.remove();
+    };
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("WordPress posts unavailable"));
+    };
+
+    script.src = `${wordpressApiUrl}&callback=${callbackName}`;
+    script.async = true;
+    document.head.append(script);
+  });
 
 const loadWordPressPosts = async () => {
   if (!blogTargets.length || !wordpressBlogUrl) return;
 
   const baseUrl = wordpressBlogUrl.replace(/\/$/, "");
-  const response = await fetch(`${baseUrl}/wp-json/wp/v2/posts?per_page=12&_fields=date,excerpt,link,title`);
-
-  if (!response.ok) {
-    throw new Error("WordPress posts unavailable");
-  }
-
-  const posts = await response.json();
+  const data = await loadWordPressData();
+  const posts = Array.isArray(data) ? data : data.posts || [];
+  const publishedPosts = posts.filter((post) => post.status !== "draft");
+  const postsToRender = publishedPosts.length ? publishedPosts : [starterBlogPost];
 
   blogTargets.forEach((target) => {
     const mode = target.dataset.wpPosts;
-    const visiblePosts = mode === "latest" ? posts.slice(0, 1) : posts.slice(1);
+    const visiblePosts = mode === "latest" ? postsToRender.slice(0, 1) : postsToRender.slice(1);
 
     if (!visiblePosts.length) {
       target.innerHTML = `
@@ -147,5 +190,6 @@ const loadWordPressPosts = async () => {
 loadWordPressPosts().catch(() => {
   blogTargets.forEach((target) => {
     target.classList.add("feed-error");
+    target.innerHTML = renderBlogPost(starterBlogPost);
   });
 });

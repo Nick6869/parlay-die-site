@@ -1403,6 +1403,10 @@ img {
   margin-bottom: 22px;
 }
 
+.board-link {
+  flex: 0 0 auto;
+}
+
 .package-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
